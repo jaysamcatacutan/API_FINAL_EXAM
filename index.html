@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dog Breed Selector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background-color: #f7f7f7;
+    }
+    select {
+      font-size: 16px;
+      padding: 8px;
+      margin-top: 20px;
+    }
+    img {
+      margin-top: 20px;
+      max-width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🐾 Dog Breed Explorer</h1>
+  <p>Select a breed to see what it looks like.</p>
+
+  <select id="breedSelect" onchange="showBreedImage()">
+    <option value="">-- Choose a Breed --</option>
+  </select>
+
+  <div id="imageContainer">
+    <img id="dogImage" src="" alt="" />
+  </div>
+
+  <script>
+    const API_KEY = "uCpufjaDtCpJK1OwjqTAv6HyLcAAAV71lINbhpJszFtmaxnDOikmk5PKH5nAVpn6";
+    const breedSelect = document.getElementById("breedSelect");
+    const dogImage = document.getElementById("dogImage");
+
+    async function loadBreeds() {
+      const response = await fetch("https://api.thedogapi.com/v1/breeds", {
+        headers: { "x-api-key": API_KEY }
+      });
+      const breeds = await response.json();
+
+      breeds.forEach(breed => {
+        const option = document.createElement("option");
+        option.value = breed.id;
+        option.textContent = breed.name;
+        breedSelect.appendChild(option);
+      });
+    }
+
+    async function showBreedImage() {
+      const breedId = breedSelect.value;
+      if (!breedId) return;
+
+      const response = await fetch(`https://api.thedogapi.com/v1/images/search?breed_id=${breedId}`, {
+        headers: { "x-api-key": API_KEY }
+      });
+      const data = await response.json();
+      if (data.length > 0) {
+        dogImage.src = data[0].url;
+        dogImage.alt = `Image of ${breedSelect.options[breedSelect.selectedIndex].text}`;
+      }
+    }
+
+    loadBreeds();
+  </script>
+
+</body>
+</html>
